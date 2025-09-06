@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Blog</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <section class="header">
+      <h1>My <span>Blog</span></h1>
+      <ul>
+        <li>Home</li>
+        <li>Blog</li>
+        <li>Service</li>
+        <li>About</li>
+        <li>Contact</li>
+      </ul>
+      <div>
+        <button id="loginBtn">Login</button>
+        <button id="registerBtn">Register</button>
+      </div>
+    </section>
+
+    <section class="heropage">
+      <h1>Discover our latest articles and insights.</h1>
+      <p>
+        Discover the achievement that sets us apart. from groundbreaking project
+        to industry accolade, <br />
+        we take pride in our work.
+      </p>
+      <button>Get Started</button>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeRegister">&times;</span>
+        <h2>Register</h2>
+        <form id="registerForm">
+          <input type="text" id="firstName" placeholder="First Name" required />
+          <input type="text" id="lastName" placeholder="Last Name" required />
+          <input type="email" id="registerEmail" placeholder="Email" required />
+          <input
+            type="password"
+            id="registerPassword"
+            placeholder="Password"
+            required
+          />
+          <input
+            type="text"
+            id="role"
+            placeholder="reader or author"
+            required
+          />
+          <button type="submit">Register</button>
+        </form>
+        <p
+          style="font-size: 14px; padding-top: 10px; text-align: center"
+          id="registerMsg"
+        ></p>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeLogin">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm">
+          <input type="email" id="loginEmail" placeholder="Email" required />
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <p
+          style="font-size: 14px; padding-top: 10px; text-align: center"
+          id="loginMsg"
+        ></p>
+      </div>
+    </div>
+  </body>
+  <script src="app.js"></script>
+</html>
