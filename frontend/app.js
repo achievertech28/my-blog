@@ -75,7 +75,7 @@ registerForm.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    if (res.ok) {
+    if (res.status === 201) {
       registerMsg.textContent = data.message || "User registered";
       registerForm.reset();
     } else {
