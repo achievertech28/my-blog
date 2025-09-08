@@ -77,6 +77,11 @@ registerForm.addEventListener("submit", async (e) => {
 
     if (res.status === 201) {
       registerMsg.textContent = data.message || "User registered";
+      registerMsg.style.color = "green";
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1500);
       registerForm.reset();
     } else {
       registerMsg.textContent = data.message || "Registration failed";
@@ -113,6 +118,9 @@ if (loginForm) {
       if (res.ok) {
         loginMsg.textContent = data.message || "Login successful";
         loginMsg.style.color = "green";
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1500);
         loginForm.reset();
       } else {
         loginMsg.textContent = data.message || "Invalid credentials";
