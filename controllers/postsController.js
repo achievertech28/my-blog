@@ -13,7 +13,7 @@ const createPost = async (request, res) => {
       success: true,
       message: "Post created successfully",
       data: newPost,
-      populatePost: newPost.populate("author"),
+      populatePost: await newPost.populate("author"),
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -23,7 +23,7 @@ const createPost = async (request, res) => {
 // READ all blog posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().populate("author");
 
     res.status(200).json({
       success: true,

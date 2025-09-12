@@ -110,14 +110,11 @@ const editUser = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password, role } = req.body;
 
-    // Corrected comparison: convert ObjectId to a string
-    if (req.user._id.toString() === req.params.id) {
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        { firstName, lastName, email, password, role },
-        { new: true }
-      );
-    }
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { firstName, lastName, email, password, role },
+      { new: true }
+    );
 
     if (!updatedUser) {
       return res
@@ -141,25 +138,19 @@ const deleteUser = async (req, res, next) => {
   // console.log(req.params.id);
   try {
     // const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (req.user._id.toString() === req.params.id) {
-      const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-      if (!deletedUser) {
-        return res
-          .status(404)
-          .json({ success: false, message: "User not found" });
-      }
+    if (!deletedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
-      res.status(200).json({
-        success: true,
-        message: "User deleted successfully",
-        data: deletedUser,
-      });
-    } else
-      res.status(404).json({
-        success: false,
-        message: "You are not authorized to delete this user",
-      });
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: deletedUser,
+    });
   } catch (error) {
     next(error);
   }

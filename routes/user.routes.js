@@ -11,7 +11,7 @@ import {
   loginUser,
   logoutUser,
 } from "../controllers/user.controller.js";
-import { protect } from "../middlware/authMiddleware.js";
+import { protect, authorizeUserAccess } from "../middlware/authMiddleware.js";
 
 const router = Router();
 
@@ -23,7 +23,7 @@ router.post("/", createUser);
 router.get("/search", searchUsersByName);
 router.get("/:id", getUserById);
 router.use(protect);
-router.patch("/:id", editUser);
-router.delete("/:id", deleteUser);
+router.patch("/:id", authorizeUserAccess, editUser);
+router.delete("/:id", authorizeUserAccess, deleteUser);
 
 export default router;
