@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import Post from "../models/postsModel.js";
 
 // CREATE a new blog post
@@ -12,6 +13,7 @@ const createPost = async (request, res) => {
       success: true,
       message: "Post created successfully",
       data: newPost,
+      populatePost: newPost.populate("author"),
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -36,7 +38,7 @@ const getPosts = async (req, res) => {
 // READ a single blog post by ID
 const getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate("author");
 
     if (!post) {
       return res
