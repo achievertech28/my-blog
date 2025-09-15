@@ -156,6 +156,47 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+// Admin only - update user role
+const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const userId = req.params.id;
+
+    // Prevent admin from demoting themselves
+    if (userId === req.user._id.toString() && role !== "admin") {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot change your own admin role",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `User role updated to ${role}`,
+      data: user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Error updating user role",
+      error: error.message,
+    });
+  }
+};
+
 const getUserbyName = async (req, res, next) => {
   try {
     const user = await User.find({
@@ -269,4 +310,5 @@ export {
   loginUser,
   logoutUser,
   searchUsersByName2,
+  updateUserRole,
 };

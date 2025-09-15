@@ -7,14 +7,19 @@ import {
   editPost,
   deletePost,
 } from "../controllers/postsController.js";
-import { protect, authorizePostAccess } from "../middlware/authMiddleware.js";
+import {
+  protect,
+  authorizePostAccess,
+  adminOnly,
+} from "../middlware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", getPosts);
 router.post("/", createPost);
 router.get("/:id", getPostById);
+
 router.use(protect);
+router.get("/", adminOnly, getPosts);
 router.patch("/:id", authorizePostAccess, editPost);
 router.delete("/:id", authorizePostAccess, deletePost);
 

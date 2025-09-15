@@ -44,29 +44,29 @@ export const authorize = (...roles) => {
   };
 };
 
-export const authorizeUserAccess = async (req, res, next) => {
-  try {
-    const targetUserId = req.params.id;
+// export const authorizeUserAccess = async (req, res, next) => {
+//   try {
+//     const targetUserId = req.params.id;
 
-    // admin can modify any user
-    if (req.user.role === "admin") {
-      return next();
-    }
+//     // admin can modify any user
+//     if (req.user.role === "admin") {
+//       return next();
+//     }
 
-    // user can only modify thier own account
-    if (req.user._id.toString() !== targetUserId.toString()) {
-      return res.status(403).json({
-        message: "Acess denied. you can only modify your own account",
-      });
-    }
+//     // user can only modify thier own account
+//     if (req.user._id.toString() !== targetUserId.toString()) {
+//       return res.status(403).json({
+//         message: "Acess denied. you can only modify your own account",
+//       });
+//     }
 
-    next();
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "server error", error: error.message });
-  }
-};
+//     next();
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "server error", error: error.message });
+//   }
+// };
 
 // Authoriztion middlware - check if user can modify a resource
 export const authorizePostAccess = async (req, res, next) => {
@@ -99,3 +99,46 @@ export const authorizePostAccess = async (req, res, next) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+// Authorization middleware - check if user can modify user account
+export const authorizeUserAccess = async (req, res, next) => {
+  try {
+    const targetUserId = req.params.id;
+
+    // Admin can modify any user
+    if (req.user.role === "admin") {
+      return next();
+    }
+
+    // Users can only modify their own account
+    if (req.user._id.toString() !== targetUserId.toString()) {
+      return res.status(403).json({
+        message: "Access denied. You can only modify your own account.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+// Middleware to check minimum role requirement
+export const requireMinRole = (minRole) => {
+  return (req, res, next) => {
+    if (!req.user.hasRole(minRole)) {
+      return res.status(403).json({
+        message: `Access denied. Minimum required role: ${minRole}`,
+      });
+    }
+    next();
+  };
+};
+
+// Middleware for admin-only routes
+export const adminOnly = authorize("admin");
+
+// Middleware for author and admin routes
+export const authorOrAdmin = authorize("author", "admin");
