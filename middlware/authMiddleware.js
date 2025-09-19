@@ -44,31 +44,6 @@ export const authorize = (...roles) => {
   };
 };
 
-// export const authorizeUserAccess = async (req, res, next) => {
-//   try {
-//     const targetUserId = req.params.id;
-
-//     // admin can modify any user
-//     if (req.user.role === "admin") {
-//       return next();
-//     }
-
-//     // user can only modify thier own account
-//     if (req.user._id.toString() !== targetUserId.toString()) {
-//       return res.status(403).json({
-//         message: "Acess denied. you can only modify your own account",
-//       });
-//     }
-
-//     next();
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ message: "server error", error: error.message });
-//   }
-// };
-
-// Authoriztion middlware - check if user can modify a resource
 export const authorizePostAccess = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);

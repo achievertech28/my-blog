@@ -12,14 +12,22 @@ import {
   authorizePostAccess,
   adminOnly,
 } from "../middlware/authMiddleware.js";
+import { paginate } from "../middlware/paginate.js";
+import Post from "../models/postsModel.js";
+import { populate } from "dotenv";
 
 const router = Router();
 
 router.post("/", createPost);
 router.get("/:id", getPostById);
+router.get(
+  "/",
+  paginate(Post, { populate: { path: "author", select: "-password" } }),
+  getPosts
+);
 
 router.use(protect);
-router.get("/", adminOnly, getPosts);
+// router.get("/", adminOnly, getPosts);
 router.patch("/:id", authorizePostAccess, editPost);
 router.delete("/:id", authorizePostAccess, deletePost);
 

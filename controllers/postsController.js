@@ -23,12 +23,10 @@ const createPost = async (request, res) => {
 // READ all blog posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find().populate("author");
+    // const posts = await Post.find().populate("author");
 
     res.status(200).json({
-      success: true,
-      count: posts.length,
-      data: posts,
+      paginateDate: res.locals.paginatedResults,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

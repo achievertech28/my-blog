@@ -1,6 +1,7 @@
 import { mongo } from "mongoose";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
+import { paginate } from "../middlware/paginate.js";
 
 // Create a new user
 const createUser = async (req, res, next) => {
@@ -76,12 +77,8 @@ const logoutUser = async (req, res, next) => {
 //Get all users
 const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
-
     res.status(200).json({
-      success: true,
-      count: users.length,
-      data: users,
+      paginateDate: res.locals.paginatedResults,
     });
   } catch (error) {
     next(error);
@@ -108,11 +105,11 @@ const getUserById = async (req, res, next) => {
 // Edit a users details
 const editUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { firstName, lastName, email, password, role },
+      { firstName, lastName, email, password },
       { new: true }
     );
 
