@@ -12,6 +12,13 @@ const userSchema = new mongoose.Schema(
       enum: ["reader", "author", "admin"],
       default: "reader",
     },
+    profilePicture: {
+      public_id: { type: String, default: null },
+      secure_url: {
+        type: String,
+        default: null,
+      },
+    },
   },
   { timestamps: true }
 );

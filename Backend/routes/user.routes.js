@@ -16,13 +16,24 @@ import {
   authorizeUserAccess,
   adminOnly,
 } from "../middlware/authMiddleware.js";
+import { validateBody } from "../middlware/schemaValidation.js";
 import { paginate } from "../middlware/paginate.js";
 import User from "../models/user.model.js";
+import {
+  userRegistrationSchema,
+  loginSchema,
+} from "../validations/authSchemas.js";
+import upload from "../middlware/multer.js";
 
 const router = Router();
 
-router.post("/login", loginUser);
-router.post("/", createUser);
+router.post("/login", validateBody(loginSchema), loginUser);
+router.post(
+  "/",
+  upload.single("profilePicture"),
+  validateBody(userRegistrationSchema),
+  createUser
+);
 router.post("/logout", logoutUser);
 router.get("/search", searchUsersByName);
 router.get("/:id", getUserById);

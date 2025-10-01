@@ -7,21 +7,23 @@ import { rateLimit } from "express-rate-limit";
 import cors from "cors";
 import { notFound, errorHandler } from "./middlware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import multer from "multer";
+import uploadImageRoutes from "./routes/uploadImageRoutes.js";
+
+// const upload = multer({ dest: "Backend/uploads/" });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(
-  cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:3000"],
-    credentials: true,
-  })
-);
+app.use(helmet());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/upload", uploadImageRoutes);
 
 // Root route
 app.get("/", (req, res) => {
@@ -30,15 +32,15 @@ app.get("/", (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// const limiter = rateLimit({
-// 	windowMs: 15 * 60 * 1000, // 15 minutes
-// 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-// 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-// 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-// 	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-// 	// store: ... , // Redis, Memcached, etc. See below.
-// })
-// app.use(limiter);
+const limiter = rateLimit({
+  windowMs: 1000 * 60, // 15 minutes
+  limit: 5, // Limit each IP to 5 requests per `window` (here, per 15 minutes).
+  message: {
+    error: "Too many requests",
+    message: "you have exceede the rate limit. please try again later",
+  },
+});
+app.use(limiter);
 
 // Connect to database FIRST, then start server
 const startServer = async () => {

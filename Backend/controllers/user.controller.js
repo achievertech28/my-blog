@@ -2,6 +2,9 @@ import { mongo } from "mongoose";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
 import { paginate } from "../middlware/paginate.js";
+import { loginSchema } from "../validations/authSchemas.js";
+import { userRegistrationSchema } from "../validations/authSchemas.js";
+import CloudinaryService from "../services/cloudinaryService.js";
 
 // Create a new user
 const createUser = async (req, res, next) => {
@@ -10,53 +13,110 @@ const createUser = async (req, res, next) => {
 
     const userExists = await User.findOne({ email });
     if (userExists) {
+      if (req.file) {
+        CloudinaryService.deleteLocalFile(req.file.path);
+      }
       res.status(400);
       throw new Error("User already exists");
     }
 
-    const newUser = await User.create({
+    const userData = {
       firstName,
       lastName,
       email,
       password,
       role,
-    });
+    };
 
-    if (newUser) {
-      // Generate token and set it as cookie
-      generateToken(res, newUser._id);
+    if (req.file) {
+      try {
+        const tempUser = new User(userData);
+        const savedUser = await tempUser.save();
 
-      res.status(201).json({
-        success: true,
-        message: "User created successfully",
-        data: {
-          _id: newUser._id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          email: newUser.email,
-          role: newUser.role,
-        },
-      });
+        // upload profile picture ot cloudinary
+        const uploadResult = await CloudinaryService.uploadProfilePicture(
+          req.file.path,
+          savedUser._id
+        );
+
+        console.log(uploadResult);
+
+        savedUser.profilePicture = {
+          public_id: uploadResult.public_id,
+          secure_url: uploadResult.secure_url,
+        };
+
+        await savedUser.save();
+
+        // generate Jwt token
+        generateToken(res, savedUser._id);
+
+        res.status(201).json({
+          success: true,
+          message: "user created succefully with profile picture",
+          data: savedUser,
+        });
+      } catch (uploadError) {
+        console.error("profile picture upload failed:", uploadError);
+
+        // still create user without profile picture
+        const newUser = await User.create(userData);
+        generateToken(res, newUser._id);
+
+        res.status(201).json({
+          success: true,
+          message: "user created successfully (profile picture upload failed)",
+          data: newUser,
+          warning: "profile picture could not be uploaded",
+        });
+      }
     } else {
-      res.status(400);
-      throw new Error("Invalid user data");
+      const newUser = await User.create(userData);
+
+      if (newUser) {
+        // Generate token and set it as cookie
+
+        generateToken(res, newUser._id);
+
+        res.status(201).json({
+          success: true,
+          message: "User created successfully",
+          data: {
+            _id: newUser._id,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            email: newUser.email,
+            role: newUser.role,
+          },
+        });
+      } else {
+        res.status(400);
+        throw new Error("Invalid user data");
+      }
     }
   } catch (error) {
+    if (req.file) {
+      CloudinaryService.deleteLocalFile(req.file.path);
+    }
     next(error);
   }
 };
 
 // Login a user
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    generateToken(res, user._id);
-    res.status(200).json({ message: "User logged in" });
-  } else {
-    res.status(404).json({ message: "User not found" });
+    if (user && (await user.matchPassword(password))) {
+      generateToken(res, user._id);
+      res.status(200).json({ message: "User logged in" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    next(error);
   }
 };
 
